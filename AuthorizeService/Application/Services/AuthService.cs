@@ -36,8 +36,11 @@ public class AuthService : IAuthService
 
     public async Task RegisterAsync(RegisterRequestDto request) 
     {
-        var role = await _repo.GetDefaultProjectRole(1/*request.ProjectId*/);
-        var user = new UserDomain(request.Email, request.Phone, request.Password, request.FullName, role.Id);
+        var role = await _repo.GetDefaultProjectRole(request.ProjectId);
+
+        if (role == null) throw new Exception();
+
+        var user = new UserDomain(request.Email, request.Phone, request.Password, request.FullName, role!.Id);
 
         if(await _repo.GetByEmailAsync(user.Email) != null)
             throw new Exception("User exists!");
