@@ -1,0 +1,28 @@
+version: '3.9'
+
+services:
+  db:
+    image: postgres:16
+    container_name: postgres-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: postgres
+    ports:
+      - "55432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./AuthorizeService
+    container_name: authorize-service
+    ports:
+      - "5146:80"
+    environment:
+      CONNECTIONSTRING_DEFAULTCONNECTION: "Host=db;Port=5432;Database=postgres;Username=postgres;Password=123456"
+    depends_on:
+      - db
+
+volumes:
+  pgdata:

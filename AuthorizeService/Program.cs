@@ -9,9 +9,12 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-            
-builder.Services.AddDbContext<AuthDbContext>(options => options.UseNpgsql(connectionString));
+var connectionString = Environment.GetEnvironmentVariable("CONNECTIONSTRING_DEFAULTCONNECTION")
+                       ?? builder.Configuration.GetConnectionString("DefaultConnection");
+
+builder.Services.AddDbContext<AuthDbContext>(options =>
+    options.UseNpgsql(connectionString)
+);
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAuthRepository, AuthRepository>();
@@ -72,12 +75,14 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
+app.Urls.Add("http://+:80");
+
 // Middleware
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthorizeService API v1"));
-}
+//}
 
 app.UseAuthentication();
 app.UseAuthorization();
